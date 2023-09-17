@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+elf = "target/xtensa-esp32-espidf/debug/test-esp-idf-rust"
+firmware = "target/xtensa-esp32-espidf/debug/test-esp-idf-rust"

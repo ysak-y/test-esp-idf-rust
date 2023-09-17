@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "author": "ymd",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-esp32-devkit-v1",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": { "builder": "rust-std-esp" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 26.88,
+      "left": 157.98,
+      "attrs": { "color": "white" }
+    }
+  ],
+  "connections": [
+    ["esp:TX0", "$serialMonitor:RX", "", []],
+    ["esp:RX0", "$serialMonitor:TX", "", []],
+    ["led1:C", "esp:GND.1", "green", ["v0"]],
+    ["led1:A", "esp:D5", "green", ["v0"]]
+  ],
+  "serialMonitor": { "display": "terminal" },
+  "dependencies": {}
+}
