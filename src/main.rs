@@ -9,12 +9,14 @@
 use esp_idf_hal::prelude::*;
 //#[allow(unused_imports)]
 //use esp_idf_svc::sysloop::*;
-use esp_idf_hal::gpio::{PinDriver, AnyIOPin};
-use esp_idf_hal::spi::{SpiDriver, SPI2, SpiDriverConfig, SpiDeviceDriver, config};
 use display_interface_spi::SPIInterface;
+use esp_idf_hal::gpio::{AnyIOPin, PinDriver};
+use esp_idf_hal::spi::{config, SpiDeviceDriver, SpiDriver, SpiDriverConfig, SPI2};
+use ili9341::Ili9341;
 
 use std::{thread, time::Duration};
 
+use embedded_graphics::mono_font::ascii::FONT_6X10;
 use embedded_graphics::{
     mono_font::{ascii::FONT_10X20, MonoTextStyle},
     pixelcolor::Rgb565,
@@ -23,7 +25,6 @@ use embedded_graphics::{
     text::{Alignment, Text},
 };
 use ili9341::DisplayError;
-use embedded_graphics::mono_font::ascii::FONT_6X10;
 
 fn increment(current: i8) -> i8 {
     current.wrapping_add(1)
@@ -138,8 +139,9 @@ fn main() {
         gpios.gpio18,
         gpios.gpio23,
         sdi,
-        &SpiDriverConfig::new()
-    ).unwrap();
+        &SpiDriverConfig::new(),
+    )
+    .unwrap();
 
     let spi_device_config = config::Config::new().baudrate(10.MHz().into());
     let spi_device = SpiDeviceDriver::new(driver, Some(gpios.gpio14), &spi_device_config).unwrap();
@@ -164,11 +166,13 @@ fn main() {
 
     println!("SPI Display interface");
 
+    // ここの spi_device が hal::blocking::spi::Write<u8> トレイトを実装していないため、 WriteOnlyDataCommand の実装がなされず、 DrawTarget の実装もされない。
+    // https://github.com/therealprof/display-interface/blob/release-0.4.1/spi/src/lib.rs
     let spidisplayinterface = SPIInterface::new(spi_device, pin_dc, pin_cs);
 
     println!("ILI9341");
 
-    let mut lcd = ili9341::Ili9341::new(
+    let mut lcd = Ili9341::new(
         spidisplayinterface,
         lcd_reset_pin,
         &mut esp_idf_hal::delay::FreeRtos,
