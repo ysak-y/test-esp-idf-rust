@@ -96,9 +96,6 @@ fn main() {
     let peripherals: esp_idf_hal::peripherals::Peripherals =
         esp_idf_hal::peripherals::Peripherals::take().unwrap();
     let gpios: esp_idf_hal::gpio::Pins = peripherals.pins;
-    let pin_btn_a = PinDriver::input(gpios.gpio39).unwrap();
-    let pin_btn_b = PinDriver::input(gpios.gpio38).unwrap();
-    let pin_btn_c = PinDriver::input(gpios.gpio37).unwrap();
 
     let mut pin_lcd_blk = PinDriver::output(gpios.gpio32).unwrap();
     pin_lcd_blk.set_high().unwrap();
@@ -112,9 +109,6 @@ fn main() {
     thread::sleep(Duration::from_millis(2000));
 
     println!("SPI Master");
-
-    //let mut spi_config = esp_idf_hal::spi::config::Config::default();
-    //spi_config.baudrate = esp_idf_hal::units::Hertz(10 * 1000 * 1000);
 
     let sdi: Option<AnyIOPin> = None;
 
@@ -160,6 +154,10 @@ fn main() {
     )
     .draw(&mut lcd)
     .unwrap();
+
+    let pin_btn_a = PinDriver::input(gpios.gpio39).unwrap();
+    let pin_btn_b = PinDriver::input(gpios.gpio38).unwrap();
+    let pin_btn_c = PinDriver::input(gpios.gpio37).unwrap();
 
     let mut counter: i8 = 0;
 
