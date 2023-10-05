@@ -5,14 +5,12 @@
 //use log::*;
 
 // use embedded_svc::anyerror::*;
+use display_interface_spi::{SPIInterface, SPIInterfaceNoCS};
+use esp_idf_hal::gpio::{AnyIOPin, PinDriver};
 #[allow(unused_imports)]
 use esp_idf_hal::prelude::*;
-//#[allow(unused_imports)]
-//use esp_idf_svc::sysloop::*;
-use display_interface_spi::SPIInterface;
-use esp_idf_hal::gpio::{AnyIOPin, PinDriver};
 use esp_idf_hal::spi::{config, SpiDeviceDriver, SpiDriver, SpiDriverConfig, SPI2};
-use ili9341::Ili9341;
+use ili9341::{DisplayError, Ili9341};
 
 use std::{thread, time::Duration};
 
@@ -24,7 +22,6 @@ use embedded_graphics::{
     primitives::{PrimitiveStyleBuilder, Rectangle, StrokeAlignment},
     text::{Alignment, Text},
 };
-use ili9341::DisplayError;
 
 fn increment(current: i8) -> i8 {
     current.wrapping_add(1)
@@ -116,7 +113,6 @@ fn main() {
     pin_lcd_blk.set_high().unwrap();
     // let pin_sclk = PinDriver::output(gpios.gpio18).unwrap();
     // let pin_sdo = PinDriver::output(gpios.gpio23).unwrap();
-    let pin_cs = PinDriver::output(gpios.gpio14).unwrap();
     let pin_dc = PinDriver::output(gpios.gpio27).unwrap();
     let mut lcd_reset_pin = PinDriver::output(gpios.gpio33).unwrap();
 
@@ -146,29 +142,9 @@ fn main() {
     let spi_device_config = config::Config::new().baudrate(10.MHz().into());
     let spi_device = SpiDeviceDriver::new(driver, Some(gpios.gpio14), &spi_device_config).unwrap();
 
-    //let lcd_spi_master = esp_idf_hal::spi::Master::<
-    //    esp_idf_hal::spi::SPI2,
-    //    esp_idf_hal::gpio::Gpio18<esp_idf_hal::gpio::Output>,
-    //    esp_idf_hal::gpio::Gpio23<esp_idf_hal::gpio::Output>,
-    //    esp_idf_hal::gpio::Gpio0<esp_idf_hal::gpio::Output>,
-    //    esp_idf_hal::gpio::Gpio14<esp_idf_hal::gpio::Output>,
-    //>::new(
-    //    peripherals.spi2 as esp_idf_hal::spi::SPI2,
-    //    esp_idf_hal::spi::Pins {
-    //        sclk: (pin_sclk),
-    //        sdo: (pin_sdo),
-    //        sdi: None,
-    //        cs: Some(pin_cs),
-    //    },
-    //    spi_config,
-    //)
-    //.unwrap();
-
     println!("SPI Display interface");
 
-    // ここの spi_device が hal::blocking::spi::Write<u8> トレイトを実装していないため、 WriteOnlyDataCommand の実装がなされず、 DrawTarget の実装もされない。
-    // https://github.com/therealprof/display-interface/blob/release-0.4.1/spi/src/lib.rs
-    let spidisplayinterface = SPIInterface::new(spi_device, pin_dc, pin_cs);
+    let spidisplayinterface = SPIInterfaceNoCS::new(spi_device, pin_dc);
 
     println!("ILI9341");
 
@@ -195,19 +171,6 @@ fn main() {
     )
     .draw(&mut lcd)
     .unwrap();
-
-    //println!("Custom configuration");
-    //lcd.command(ili9341::Command::DisplayInvertionOn, &[])
-    //    .expect("Failed to issue Display Invertion ON command");
-    //lcd.command(ili9341::Command::MemoryAccessControl, &[0x00 | 0x08])
-    //    .expect("Failed to issue MemoryAccessControl command");
-    //let _ = lcd.fill_solid(
-    //    &mut Rectangle::new(Point::new(0, 0), Size::new(320, 240)),
-    //    embedded_graphics::pixelcolor::Rgb565::new(0, 255, 255),
-    //);
-
-    //draw_sample(&mut lcd);
-    //draw_btn_status(&mut lcd, false, false, false);
 
     let mut counter: i8 = 0;
 
