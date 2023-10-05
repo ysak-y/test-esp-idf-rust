@@ -1,11 +1,4 @@
-//use esp_idf_hal::delay::FreeRtos;
-//use esp_idf_hal::gpio::*;
-//use esp_idf_hal::peripherals::Peripherals;
-//use esp_idf_sys as _; // If using the `binstart` feature of `esp-idf-sys`, always keep this module imported
-//use log::*;
-
-// use embedded_svc::anyerror::*;
-use display_interface_spi::{SPIInterface, SPIInterfaceNoCS};
+use display_interface_spi::{SPIInterfaceNoCS};
 use esp_idf_hal::gpio::{AnyIOPin, PinDriver};
 #[allow(unused_imports)]
 use esp_idf_hal::prelude::*;
@@ -97,8 +90,6 @@ where
     draw_single_btn_status(lcd, "Btn C", btn_c, pos3);
 }
 
-//use esp_idf_hal::gpio::Pins;
-
 fn main() {
     println!("Initializing...");
 
@@ -111,8 +102,6 @@ fn main() {
 
     let mut pin_lcd_blk = PinDriver::output(gpios.gpio32).unwrap();
     pin_lcd_blk.set_high().unwrap();
-    // let pin_sclk = PinDriver::output(gpios.gpio18).unwrap();
-    // let pin_sdo = PinDriver::output(gpios.gpio23).unwrap();
     let pin_dc = PinDriver::output(gpios.gpio27).unwrap();
     let mut lcd_reset_pin = PinDriver::output(gpios.gpio33).unwrap();
 
